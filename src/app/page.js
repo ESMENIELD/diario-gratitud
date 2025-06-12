@@ -10,8 +10,9 @@ import Link from 'next/link';
 export default function Home() {
   const [entries, setEntries] = useState([]);
   const [editing, setEditing] = useState(null);
-  console.log('useAuth:', useAuth); // debe ser una función
-  const { user } = useAuth();  
+  const { user, loading } = useAuth()
+console.log('loading, user →', loading, user)
+if (loading) return <p>Cargando...</p>
 
   useEffect(() => {
     fetchEntries();
