@@ -1,14 +1,26 @@
 'use client';
 import { useState } from 'react';
 import EntryItem from './EntryItem';
+import EditModal from './EditModal';
 
-export default function EntryList({ entries, onEdit, onDelete }) {
+export default function EntryList({ entries, onDeleteEntry, onUpdateEntry }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState('desc'); // por defecto: más recientes primero
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Filtrar y ordenar entradas
+  const openModal = (entry) => {
+    setSelectedEntry(entry);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedEntry(null);
+    setIsModalOpen(false);
+  };
+
   const filteredEntries = entries
-    .filter(entry =>
+    .filter((entry) =>
       entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       entry.content.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -20,39 +32,49 @@ export default function EntryList({ entries, onEdit, onDelete }) {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
+      {/* Buscador y filtro */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
         <input
           type="text"
           placeholder="Buscar entradas..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full md:w-1/2 p-2 border rounded"
+          className="w-full md:w-1/2 p-2 border border-purple-300 rounded-lg shadow-sm"
         />
-
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
-          className="w-full md:w-auto p-2 border rounded"
+          className="w-full md:w-auto p-2 border border-purple-300 rounded-lg shadow-sm"
         >
           <option value="desc">Más recientes primero</option>
           <option value="asc">Más antiguas primero</option>
         </select>
       </div>
 
-      <ul className="space-y-4">
-        {filteredEntries.length > 0 ? (
-          filteredEntries.map((entry) => (
+      {filteredEntries.length > 0 ? (
+        <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredEntries.map((entry) => (
             <EntryItem
               key={entry.id}
               entry={entry}
-              onEdit={onEdit}
-              onDelete={onDelete}
+              onEdit={() => openModal(entry)}
+              onDelete={() => onDeleteEntry(entry.id)}
             />
-          ))
-        ) : (
-          <p>No se encontraron resultados.</p>
-        )}
-      </ul>
+          ))}
+        </ul>
+      ) : (
+        <p>No se encontraron resultados.</p>
+      )}
+
+      <EditModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        entry={selectedEntry}
+        onSave={(updatedEntry) => {
+          onUpdateEntry(updatedEntry);
+          closeModal();
+        }}
+      />
     </div>
   );
 }

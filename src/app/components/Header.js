@@ -11,11 +11,8 @@ export default function Header() {
         <button onClick={logout} className="text-purple-700 hover:underline">
           Cerrar sesión
         </button>
-      ) : (
-        <a href="/Login/login" className="text-purple-700 hover:underline">
-          Iniciar sesión
-        </a>
-      )}
+      ) : null
+      }
     </header>
   );
 }
